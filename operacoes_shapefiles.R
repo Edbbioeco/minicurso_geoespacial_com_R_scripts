@@ -165,12 +165,60 @@ ggplot() +
 
 ## Mínimo polígono convexo ----
 
+### Para sahepfiles ----
+
 minimo_poligono_convexo <- br |>
   sf::st_convex_hull()
 
 ggplot() +
   geom_sf(data = minimo_poligono_convexo, color = "black", fill = "green4") +
   geom_sf(data = estados, color = "black")
+
+### Para pontos ----
+
+#### Para 100 % ----
+
+minimo_poligono_convexo_pontos100 <- pontos_aleatorios |>
+  sf::as_Spatial() |>
+  adehabitatHR::mcp(percent = 100) |>
+  sf::st_as_sf() |>
+  dplyr::mutate(`% de ocorrências` = "100%")
+
+minimo_poligono_convexo_pontos100
+
+#### Para 90 % ----
+
+minimo_poligono_convexo_pontos90 <- pontos_aleatorios |>
+  sf::as_Spatial() |>
+  adehabitatHR::mcp(percent = 90) |>
+  sf::st_as_sf() |>
+  dplyr::mutate(`% de ocorrências` = "090%")
+
+minimo_poligono_convexo_pontos90
+
+#### Para 50 % ----
+
+minimo_poligono_convexo_pontos50 <- pontos_aleatorios |>
+  sf::as_Spatial() |>
+  adehabitatHR::mcp(percent = 50) |>
+  sf::st_as_sf() |>
+  dplyr::mutate(`% de ocorrências` = "050%")
+
+minimo_poligono_convexo_pontos50
+
+#### Unindo e Visualizando os dados ----
+
+pontos_mcp <- ls(pattern = "minimo_poligono_convexo_pontos") |>
+  mget(envir = globalenv()) |>
+  dplyr::bind_rows()
+
+pontos_mcp
+
+ggplot() +
+  geom_sf(data = pontos_mcp, aes(color = `% de ocorrências`),
+          fill = NULL,
+          linewidth = 1) +
+  geom_sf(data = pontos_aleatorios)
 
 ## Intersecção de atributos ----
 
