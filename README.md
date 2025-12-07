@@ -1,1 +1,3 @@
-# minicurso_geoespacial_com_R_scripts
+# Minicurso de Análises Geoespaciais com R
+
+> Scripts usado no minicurso de Análise Geoespacial com R
