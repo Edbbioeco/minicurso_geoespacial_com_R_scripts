@@ -6,6 +6,8 @@ library(sf)
 
 library(tidyverse)
 
+library(adehabitatHR)
+
 library(lwgeom)
 
 # Dados ----
@@ -53,18 +55,6 @@ br
 ggplot() +
   geom_sf(data = br, color = "black")
 
-## Pontos aleatórios ----
-
-set.seed(123); pontos_aleatorios <- br |>
-  sf::st_sample(size = 50, type = "random") |>
-  sf::st_as_sf()
-
-pontos_aleatorios
-
-ggplot() +
-  geom_sf(data = estados, color = "black") +
-  geom_sf(data = pontos_aleatorios)
-
 ## Trajetória de movimento ----
 
 ### Importando ----
@@ -81,6 +71,53 @@ mov_sf <- mov |>
   sf::st_cast("LINESTRING") |>
   dplyr::mutate(`individual-local-identifier` = `individual-local-identifier` |>
                   as.character())
+
+mov_sf
+
+ggplot() +
+  geom_sf(data = mov_sf)
+
+# Pontos dentro de um shapefile -----
+
+## Pontos aleatórios ----
+
+set.seed(123); pontos_aleatorios <- br |>
+  sf::st_sample(size = 50, type = "random") |>
+  sf::st_as_sf(crs = 4674)
+
+pontos_aleatorios
+
+ggplot() +
+  geom_sf(data = estados, color = "black") +
+  geom_sf(data = pontos_aleatorios)
+
+## Pontos regulares baseado em quantidade ----
+
+pontos_reg_quant <- br |>
+  sf::st_sample(size = 50, type = "regular") |>
+  sf::st_as_sf(crs = 4674)
+
+pontos_reg_quant
+
+ggplot() +
+  geom_sf(data = estados, color = "black") +
+  geom_sf(data = pontos_reg_quant)
+
+## Pontos regulares baseado em distâncias entre os pontos ----
+
+pontos_reg_dist <- br |>
+  sf::st_transform(crs = 32725) |>
+  sf::st_make_grid(what = "centers",
+                   cellsize = 200000) |>
+  sf::st_intersection(br |>
+                        sf::st_transform(crs = 32725)) |>
+  sf::st_transform(crs = br |> sf::st_crs())
+
+pontos_reg_dist |> plot()
+
+ggplot() +
+  geom_sf(data = br, color = "black") +
+  geom_sf(data = pontos_reg_dist, color = "black")
 
 ### Visualizando ----
 
@@ -165,7 +202,7 @@ deslocamento <- mov_sf |>
 
 deslocamento
 
-### Compri,emto da menor distância ----
+### Compriemto da menor distância ----
 
 menor_deslocamento <- mov_sf |>
   dplyr::mutate(ponto_ini = lwgeom::st_startpoint(geometry),
