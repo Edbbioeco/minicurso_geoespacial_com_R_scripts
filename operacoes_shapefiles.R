@@ -246,6 +246,7 @@ ggplot() +
 ### Comprimento total -----
 
 deslocamento <- mov_sf |>
+  sf::st_transform(crs = 32725) |>
   sf::st_length()
 
 deslocamento
@@ -253,9 +254,12 @@ deslocamento
 ### Compriemto da menor distância ----
 
 menor_deslocamento <- mov_sf |>
+  sf::st_transform(crs = 32725) |>
   dplyr::mutate(ponto_ini = lwgeom::st_startpoint(geometry),
                 ponto_fim = lwgeom::st_endpoint(geometry),
-                dist_metros = sf::st_distance(ponto_ini, ponto_fim, by_element = TRUE)) |>
+                dist_metros = sf::st_distance(ponto_ini,
+                                              ponto_fim,
+                                              by_element = TRUE)) |>
   dplyr::pull(dist_metros)
 
 menor_deslocamento
